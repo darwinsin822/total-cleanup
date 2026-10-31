@@ -35,7 +35,7 @@ rm -rf "$TEST_SANDBOX"
 echo "  ✔ [PASS] Motor de limpieza ejecutado y verificado en sandbox."
 
 echo "🧪 [4/4] Verificando ausencia total de rutas privadas absolutas..."
-if git -C "$REPO_DIR" grep -I -i "/home/darwinsin" ":(exclude).git" 2>/dev/null; then
+if git -C "$REPO_DIR" grep -I -i "/home/darwinsin" ":(exclude).git" ":(exclude)scripts/ci.sh" 2>/dev/null; then
   echo "  ❌ [FAIL] Se detectaron rutas privadas absolutas."
   exit 1
 else
