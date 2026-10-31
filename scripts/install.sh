@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Total Cleanup — Instalador Automatizado e Idempotente para Google Antigravity
+# Total Cleanup — Instalador Automatizado e Idempotente para Google Antigravity 2.0
 # ==============================================================================
 set -euo pipefail
 
@@ -9,7 +9,7 @@ REPO_DIR="$(dirname "$SCRIPT_DIR")"
 SKILL_DIR="${HOME}/.gemini/config/skills/total-cleanup"
 BIN_DIR="${HOME}/.local/bin"
 
-echo "🧹 Instalando Total Cleanup en Google Antigravity y entorno local..."
+echo "🧹 Instalando Total Cleanup en Google Antigravity 2.0 y entorno local..."
 
 mkdir -p "$SKILL_DIR/scripts" "$SKILL_DIR/assets"
 cp -u "$REPO_DIR/SKILL.md" "$SKILL_DIR/SKILL.md"

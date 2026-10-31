@@ -1,18 +1,18 @@
 <div align="center">
 
 # 🧹 Total Cleanup
-### Ultra-Aggressive Project Storage Purge Engine for Linux & Antigravity
+### Ultra-Aggressive Project Storage Purge Engine for Linux & Antigravity 2.0
 
 <img src="./assets/total-cleanup.jpg" alt="Total Cleanup Engine Banner" width="380px" style="border-radius: 12px; margin: 16px 0; box-shadow: 0 8px 24px rgba(0,0,0,0.5);" />
 
 [![GitHub License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Compatible](https://img.shields.io/badge/Antigravity_Skill-Verified-blue.svg)](https://github.com/darwinsin822/total-cleanup)
+[![Compatible](https://img.shields.io/badge/Antigravity%202.0_Skill-Verified-blue.svg)](https://github.com/darwinsin822/total-cleanup)
 [![Purge Engine](https://img.shields.io/badge/Engine-Ultra_Aggressive_Purge-emerald.svg)](#-evidencia-de-ejecución-en-vivo)
 [![CI](https://img.shields.io/badge/CI-Passing-brightgreen.svg)](scripts/ci.sh)
 
 </div>
 
-**Total Cleanup** es el motor ultra agresivo de saneamiento de almacenamiento, purga de residuos de compilación y optimización de disco para proyectos de software en Linux Mint y Google Antigravity. Elimina sistemáticamente versiones anteriores obsoletas, árboles de descompilación temporal y archivos intermedios, preservando de forma inmutable únicamente el artefacto final activo y el código fuente limpio.
+**Total Cleanup** es el motor ultra agresivo de saneamiento de almacenamiento, purga de residuos de compilación y optimización de disco para proyectos de software en Linux Mint y Google Antigravity 2.0. Elimina sistemáticamente versiones anteriores obsoletas, árboles de descompilación temporal y archivos intermedios, preservando de forma inmutable únicamente el artefacto final activo y el código fuente limpio.
 
 ---
 
@@ -42,7 +42,7 @@ A continuación se muestra una sesión real del motor ejecutando una purga ultra
 
 ## 🚀 Instalación y Despliegue Rápido
 
-Para instalar la CLI globalmente (`clean-project`) y como skill en Google Antigravity:
+Para instalar la CLI globalmente (`clean-project`) y como skill en Google Antigravity 2.0:
 
 ```bash
 git clone https://github.com/darwinsin822/total-cleanup.git

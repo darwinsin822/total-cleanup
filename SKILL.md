@@ -10,7 +10,7 @@ description: >-
 
 # 🧹 Total Cleanup — Limpiador Ultra Agresivo de Proyectos
 
-Skill universal de optimización extrema de almacenamiento y purga de residuos para proyectos de software en Linux Mint / Google Antigravity. Se activa automáticamente con la palabra **"optimizar"** o ante cualquier solicitud de limpieza profunda.
+Skill universal de optimización extrema de almacenamiento y purga de residuos para proyectos de software en Linux Mint / Google Antigravity 2.0 2.0. Se activa automáticamente con la palabra **"optimizar"** o ante cualquier solicitud de limpieza profunda.
 
 ---
 
