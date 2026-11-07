@@ -9,25 +9,27 @@ REPO_DIR="$(dirname "$SCRIPT_DIR")"
 SKILL_DIR="${HOME}/.gemini/config/skills/total-cleanup"
 BIN_DIR="${HOME}/.local/bin"
 
-echo "🧹 Instalando Total Cleanup en Google Antigravity 2.0 y entorno local..."
+echo "🧹 Instalando / Actualizando Total Cleanup en Google Antigravity 2.0 y entorno local..."
 
 mkdir -p "$SKILL_DIR/scripts" "$SKILL_DIR/assets"
-cp -u "$REPO_DIR/SKILL.md" "$SKILL_DIR/SKILL.md"
-cp -u "$REPO_DIR/scripts/clean_project.py" "$SKILL_DIR/scripts/clean_project.py"
+if [ "$REPO_DIR" != "$SKILL_DIR" ]; then
+  cp -u "$REPO_DIR/SKILL.md" "$SKILL_DIR/SKILL.md"
+  cp -u "$REPO_DIR/scripts/clean_project.py" "$SKILL_DIR/scripts/clean_project.py"
+fi
 chmod +x "$SKILL_DIR/scripts/clean_project.py"
 
-if [ -d "$REPO_DIR/assets" ]; then
+if [ -d "$REPO_DIR/assets" ] && [ "$REPO_DIR" != "$SKILL_DIR" ]; then
   cp -ru "$REPO_DIR/assets/"* "$SKILL_DIR/assets/"
 fi
 
 mkdir -p "$BIN_DIR"
 cat << 'BIN_EOF' > "$BIN_DIR/clean-project"
 #!/usr/bin/env bash
-exec python3 "${HOME}/.gemini/config/skills/total-cleanup/scripts/clean_project.py" "${1:-.}"
+exec python3 "${HOME}/.gemini/config/skills/total-cleanup/scripts/clean_project.py" "$@"
 BIN_EOF
 chmod +x "$BIN_DIR/clean-project"
 
-echo "✔ Total Cleanup instalado correctamente:"
+echo "✔ Total Cleanup actualizado correctamente:"
 echo "  • Skill: $SKILL_DIR"
 echo "  • CLI:   $BIN_DIR/clean-project"
-echo "  Disponible en Antigravity mediante la invocación: 'optimizar', 'limpiar' o 'limpieza'."
+echo "  Disponible en Antigravity mediante la invocación: 'optimizar', 'limpiar', 'limpieza' o 'clean-project --deep'."

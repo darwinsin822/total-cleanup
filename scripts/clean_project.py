@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 """
-clean_project.py - Limpiador Ultra Agresivo de Proyectos (DarwinSin)
+clean_project.py - Limpiador Ultra Agresivo de Proyectos y Sistema (DarwinSin)
 Elimina sistemáticamente:
  1. Todas las versiones anteriores de APKs (en el proyecto y en ~/Descargas/).
  2. Scripts, parches y códigos fuente de versiones pasadas.
  3. Carpetas de descompilación temporal, cachés, volcados y archivos no alineados.
-Deja ÚNICAMENTE la versión actual más reciente y el árbol de código activo.
+ 4. Mantenimiento Profundo de Sistema:
+    - Caché multimedia/HTTP de WhatsApp Web (ICE) y WhatsApp Flatpak (preserva chats y sesiones).
+    - Cachés de Flutter/Dart (~/.pub-cache).
+    - Cachés de Rust (~/.cargo/registry/src y cache).
+    - Cachés de Gradle, NPM, pip y miniaturas del sistema.
+ Deja ÚNICAMENTE la versión actual más reciente y el árbol de código activo.
 """
 
 import os
@@ -17,12 +22,18 @@ import shutil
 def get_dir_size(path):
     total = 0
     if os.path.isfile(path) or os.path.islink(path):
-        return os.path.getsize(path)
+        try:
+            return os.path.getsize(path)
+        except OSError:
+            return 0
     for root, dirs, files in os.walk(path):
         for f in files:
             fp = os.path.join(root, f)
             if not os.path.islink(fp) and os.path.exists(fp):
-                total += os.path.getsize(fp)
+                try:
+                    total += os.path.getsize(fp)
+                except OSError:
+                    pass
     return total
 
 def format_size(bytes_size):
@@ -37,16 +48,104 @@ def extract_version_tuple(filename):
     nums = [int(n) for n in re.findall(r'\d+', filename)]
     return tuple(nums) if nums else (0,)
 
+def purge_path_or_contents(target_path, only_contents=False):
+    """Elimina de forma segura un archivo, carpeta o los contenidos de una carpeta."""
+    freed = 0
+    expanded_paths = glob.glob(os.path.expanduser(target_path))
+    for p in expanded_paths:
+        if not os.path.exists(p):
+            continue
+        if only_contents and os.path.isdir(p):
+            for item in os.listdir(p):
+                item_path = os.path.join(p, item)
+                sz = get_dir_size(item_path)
+                try:
+                    if os.path.isdir(item_path) and not os.path.islink(item_path):
+                        shutil.rmtree(item_path)
+                    else:
+                        os.remove(item_path)
+                    freed += sz
+                except OSError:
+                    pass
+        else:
+            sz = get_dir_size(p)
+            try:
+                if os.path.isdir(p) and not os.path.islink(p):
+                    shutil.rmtree(p)
+                else:
+                    os.remove(p)
+                freed += sz
+            except OSError:
+                pass
+    return freed
+
+def clean_system_deep():
+    """Ejecuta el saneamiento y mantenimiento profundo del sistema."""
+    print("🔥 INICIANDO MANTENIMIENTO PROFUNDO DEL SISTEMA (Total Cleanup)")
+    freed_bytes = 0
+    results = []
+
+    # 1. WhatsApp (ICE SSB & Flatpak) - Solo cachés, nunca sesiones ni idb
+    wa_ice_cache = purge_path_or_contents("~/.local/share/ice/firefox/Whatsaap*/storage/default/https+++web.whatsapp.com/cache", only_contents=True)
+    wa_flatpak_cache = purge_path_or_contents("~/.var/app/com.github.eneshecan.WhatsAppForLinux/cache/whatsapp-for-linux", only_contents=True)
+    wa_total = wa_ice_cache + wa_flatpak_cache
+    freed_bytes += wa_total
+    if wa_total > 0:
+        results.append(f"Caché de WhatsApp (ICE + Flatpak): {format_size(wa_total)} (Sesiones y chats protegidos)")
+
+    # 2. Flutter / Dart (~/.pub-cache)
+    pub_freed = purge_path_or_contents("~/.pub-cache/hosted", only_contents=True) + purge_path_or_contents("~/.pub-cache/git", only_contents=True)
+    freed_bytes += pub_freed
+    if pub_freed > 0:
+        results.append(f"Caché de Flutter/Dart (~/.pub-cache): {format_size(pub_freed)}")
+
+    # 3. Rust / Cargo Registry (~/.cargo/registry)
+    cargo_freed = purge_path_or_contents("~/.cargo/registry/src", only_contents=True) + purge_path_or_contents("~/.cargo/registry/cache", only_contents=True)
+    freed_bytes += cargo_freed
+    if cargo_freed > 0:
+        results.append(f"Caché de Rust/Cargo (~/.cargo/registry): {format_size(cargo_freed)}")
+
+    # 4. Node / NPM Caches
+    npm_freed = purge_path_or_contents("~/.npm/_cacache", only_contents=True) + purge_path_or_contents("~/.npm/_prebuilds", only_contents=True) + purge_path_or_contents("~/.npm/_npx", only_contents=True)
+    freed_bytes += npm_freed
+    if npm_freed > 0:
+        results.append(f"Caché de Node/NPM (~/.npm): {format_size(npm_freed)}")
+
+    # 5. Gradle Global Caches
+    gradle_freed = purge_path_or_contents("~/.gradle/caches", only_contents=True) + purge_path_or_contents("~/.gradle/daemon", only_contents=True)
+    freed_bytes += gradle_freed
+    if gradle_freed > 0:
+        results.append(f"Caché de Gradle (~/.gradle): {format_size(gradle_freed)}")
+
+    # 6. Miniaturas, instaladores y cachés de usuario
+    user_cache_freed = (
+        purge_path_or_contents("~/.cache/thumbnails", only_contents=True) +
+        purge_path_or_contents("~/.cache/@opencodedesktop-updater", only_contents=True) +
+        purge_path_or_contents("~/.cache/mintinstall", only_contents=True) +
+        purge_path_or_contents("~/.cache/pip", only_contents=True) +
+        purge_path_or_contents("~/.cache/google-chrome/Default/Cache", only_contents=True) +
+        purge_path_or_contents("~/.cache/google-chrome/Default/Code Cache", only_contents=True)
+    )
+    freed_bytes += user_cache_freed
+    if user_cache_freed > 0:
+        results.append(f"Caché de usuario (~/.cache / Chrome / Miniaturas): {format_size(user_cache_freed)}")
+
+    print(f"\n⚡ MANTENIMIENTO PROFUNDO FINALIZADO")
+    print(f"🗑️  Espacio total liberado en sistema: {format_size(freed_bytes)}")
+    for r in results:
+        print(f"   ✅ {r}")
+
+    return freed_bytes
+
 def clean_project(target_dir):
     target_dir = os.path.abspath(target_dir)
     if not os.path.exists(target_dir):
         print(f"Error: Directorio no existe: {target_dir}")
-        return
+        return 0
 
     print(f"🔥 INICIANDO LIMPIEZA TOTAL ULTRA AGRESIVA EN: {target_dir}")
     freed_bytes = 0
     removed_items = []
-    preserved_items = []
 
     # Determinar prefijo del proyecto
     dir_name = os.path.basename(target_dir)
@@ -55,106 +154,45 @@ def clean_project(target_dir):
 
     descargas_dir = os.path.expanduser("~/Descargas")
 
-    # ─────────────────────────────────────────────────────────────────────────
     # 1. PURGA AGRESIVA DE PAQUETES ANTIGUOS (.apk, .deb, .AppImage)
-    # ─────────────────────────────────────────────────────────────────────────
-    package_extensions = ["*.apk", "*.deb", "*.AppImage"]
-    
-    for ext in package_extensions:
-        local_pkgs = glob.glob(os.path.join(target_dir, ext))
-        descargas_pkgs = []
-        if os.path.exists(descargas_dir):
-            descargas_pkgs = glob.glob(os.path.join(descargas_dir, f"{project_prefix}*{ext[1:]}"))
-            if not descargas_pkgs and '-' in dir_name:
-                alt_prefix = dir_name.split('-')[0]
-                descargas_pkgs = glob.glob(os.path.join(descargas_dir, f"{alt_prefix}*{ext[1:]}"))
+    locations = [target_dir]
+    if os.path.exists(descargas_dir):
+        locations.append(descargas_dir)
 
-        all_pkgs = list(set(local_pkgs + descargas_pkgs))
-        if not all_pkgs:
-            continue
+    for loc in locations:
+        for ext in ["apk", "deb", "AppImage"]:
+            pattern = os.path.join(loc, f"*{project_prefix}*.{ext}")
+            packages = glob.glob(pattern)
+            if not packages:
+                continue
 
-        if ext == "*.apk":
-            aligned_apks = [a for a in all_pkgs if "unaligned" not in a.lower()]
-            candidates = aligned_apks if aligned_apks else all_pkgs
-        else:
-            candidates = all_pkgs
+            packages_with_versions = []
+            for pkg in packages:
+                fname = os.path.basename(pkg)
+                v_tuple = extract_version_tuple(fname)
+                packages_with_versions.append((v_tuple, pkg))
 
-        # Ordenar por versión semántica y fecha de modificación
-        candidates.sort(key=lambda f: (extract_version_tuple(os.path.basename(f)), os.path.getmtime(f)))
-        latest_pkg = candidates[-1]
-        latest_name = os.path.basename(latest_pkg)
-        preserved_items.append(f"{latest_name} ({format_size(get_dir_size(latest_pkg))})")
+            packages_with_versions.sort(key=lambda x: x[0])
 
-        # Eliminar versiones obsoletas
-        for pkg in all_pkgs:
-            if os.path.abspath(pkg) != os.path.abspath(latest_pkg):
-                sz = get_dir_size(pkg)
-                freed_bytes += sz
-                try:
-                    os.remove(pkg)
-                    removed_items.append(f"Paquete anterior: {os.path.basename(pkg)} ({format_size(sz)})")
-                except OSError as e:
-                    print(f"Error al eliminar {pkg}: {e}")
-
-                # Eliminar firma .asc asociada si existe
-                asc_file = pkg + ".asc"
-                if os.path.exists(asc_file):
-                    asc_sz = get_dir_size(asc_file)
-                    freed_bytes += asc_sz
+            if len(packages_with_versions) > 1:
+                obsolete_packages = packages_with_versions[:-1]
+                for _, pkg_path in obsolete_packages:
+                    sz = get_dir_size(pkg_path)
+                    freed_bytes += sz
                     try:
-                        os.remove(asc_file)
-                        removed_items.append(f"Firma obsoleta: {os.path.basename(asc_file)} ({format_size(asc_sz)})")
+                        os.remove(pkg_path)
+                        removed_items.append(f"{os.path.basename(pkg_path)} ({format_size(sz)})")
                     except OSError:
                         pass
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # 2. PURGA DE ESPACIOS DE TRABAJO REDUNDANTES PREVIOS EN SCRATCH
-    # ─────────────────────────────────────────────────────────────────────────
-    parent_dir = os.path.dirname(target_dir)
-    if os.path.basename(parent_dir) == "scratch" or "scratch" in target_dir:
-        for sibling in glob.glob(os.path.join(parent_dir, f"{project_prefix}*")):
-            if os.path.isdir(sibling) and os.path.abspath(sibling) != os.path.abspath(target_dir):
-                sib_name = os.path.basename(sibling)
-                sib_ver = extract_version_tuple(sib_name)
-                target_ver = extract_version_tuple(dir_name)
-                if sib_ver <= target_ver and sib_name != dir_name:
-                    sz = get_dir_size(sibling)
-                    freed_bytes += sz
-                    try:
-                        shutil.rmtree(sibling)
-                        removed_items.append(f"Workspace previo redundante: {sib_name} ({format_size(sz)})")
-                    except OSError as e:
-                        print(f"Error al eliminar {sibling}: {e}")
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # 3. PURGA DE CÓDIGO FUENTE Y SCRIPTS DE VERSIONES PASADAS
-    # ─────────────────────────────────────────────────────────────────────────
-    build_scripts = glob.glob(os.path.join(target_dir, "build_*.py"))
-    if build_scripts:
-        build_scripts.sort(key=lambda f: (extract_version_tuple(os.path.basename(f)), os.path.getmtime(f)))
-        latest_build_script = build_scripts[-1]
-        for script in build_scripts:
-            if script != latest_build_script:
-                sz = get_dir_size(script)
-                freed_bytes += sz
-                try:
-                    os.remove(script)
-                    removed_items.append(f"Script de versión anterior: {os.path.basename(script)} ({format_size(sz)})")
-                except OSError:
-                    pass
-
+    # 2. PURGA DE ARCHIVOS INTERMEDIOS Y DESCOMPILACIONES RESIDUALES
     intermediate_patterns = [
-        # Carpetas descompiladas y temporales
-        "apk_extracted", "apktool_out*",
-        # Archivos APK intermedios y firmas
+        "apk_extracted*", "build_extracted*", "temp_unaligned*",
+        "smali_patch*", "smali_*_bak", "apk_decompiled*",
         "*unaligned*.apk", "*unsigned*.apk", "*.idsig",
-        # Residuos de compilación DEX y manifiestos intermedios
         "classes*_patched.dex", "AndroidManifest_*.xml", "*.dex.dump", "*.ap_",
-        # Scripts temporales de pruebas y parches obsoletos
         "test_*.py", "apply_patch.py", "patch_*.py", "build_js.py",
-        # JS intermedios volcados
         "*_injected.js", "original_injected.js", "test_*.js",
-        # Backups y códigos obsoletos
         "*_old", "*_bak", "*.bak", "*.old", "backup*", "src_old", "src_v*"
     ]
 
@@ -171,9 +209,7 @@ def clean_project(target_dir):
             except OSError:
                 pass
 
-    # ─────────────────────────────────────────────────────────────────────────
     # 3. LIMPIEZA DE CACHÉS DE DESARROLLO (Python, Gradle, Node, etc.)
-    # ─────────────────────────────────────────────────────────────────────────
     general_clean_patterns = [
         "__pycache__", "*.pyc", ".pytest_cache", ".mypy_cache",
         "build/intermediates", ".gradle/caches", ".gradle/daemon",
@@ -185,15 +221,16 @@ def clean_project(target_dir):
         for match in glob.glob(os.path.join(target_dir, "**", pattern), recursive=True):
             sz = get_dir_size(match)
             freed_bytes += sz
-            if os.path.isdir(match):
-                shutil.rmtree(match)
-            else:
-                os.remove(match)
-            removed_items.append(f"{os.path.relpath(match, target_dir)} ({format_size(sz)})")
+            try:
+                if os.path.isdir(match):
+                    shutil.rmtree(match)
+                else:
+                    os.remove(match)
+                removed_items.append(f"{os.path.relpath(match, target_dir)} ({format_size(sz)})")
+            except OSError:
+                pass
 
-    # ─────────────────────────────────────────────────────────────────────────
     # 4. REPORTE FINAL DE LIMPIEZA
-    # ─────────────────────────────────────────────────────────────────────────
     print(f"\n⚡ LIMPIEZA ULTRA AGRESIVA FINALIZADA")
     print(f"🗑️  Espacio total liberado: {format_size(freed_bytes)}")
     if removed_items:
@@ -210,6 +247,16 @@ def clean_project(target_dir):
         sz = format_size(get_dir_size(fp))
         print(f"   ✅ {f} [{sz}]")
 
+    return freed_bytes
+
 if __name__ == "__main__":
-    target = sys.argv[1] if len(sys.argv) > 1 else os.getcwd()
-    clean_project(target)
+    args = sys.argv[1:]
+    if not args or args[0] in [".", ""]:
+        clean_project(os.getcwd())
+    elif any(arg in ["--system", "--deep", "system", "deep", "-s"] for arg in args):
+        clean_system_deep()
+    elif any(arg in ["--all", "-a"] for arg in args):
+        clean_system_deep()
+        clean_project(os.getcwd())
+    else:
+        clean_project(args[0])
