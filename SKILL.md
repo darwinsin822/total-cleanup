@@ -27,6 +27,8 @@ Skill universal de optimización extrema de almacenamiento y purga de residuos p
   - Purga el registro de paquetes descomprimidos (`~/.cargo/registry/src`) y archivos comprimidos descargados (`~/.cargo/registry/cache`).
 - **Node.js / NPM & Gradle:**
   - Purga la caché de descargas de NPM (`~/.npm/_cacache`) y cachés globales de compilación de Gradle (`~/.gradle/caches`, daemons huérfanos).
+- **OpenCode (Desktop & CLI):**
+  - Purga cachés gráficas de Chromium/Electron (`Cache`, `Code Cache`, `GPUCache`), volcados de Crashpad, logs locales y backups obsoletos (`*.bak*`), conservando íntegros `opencode.db`, credenciales y extensiones.
 - **Cachés de Usuario del Sistema:**
   - Limpia miniaturas (`~/.cache/thumbnails`), cachés de navegadores y temporales de instaladores.
 

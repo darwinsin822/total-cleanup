@@ -130,6 +130,27 @@ def clean_system_deep():
     if user_cache_freed > 0:
         results.append(f"Caché de usuario (~/.cache / Chrome / Miniaturas): {format_size(user_cache_freed)}")
 
+    # 7. OpenCode (Desktop / CLI Caches, Logs, Snapshots, Backups)
+    opencode_freed = (
+        purge_path_or_contents("~/.config/ai.opencode.desktop/Cache", only_contents=True) +
+        purge_path_or_contents("~/.config/ai.opencode.desktop/Code Cache", only_contents=True) +
+        purge_path_or_contents("~/.config/ai.opencode.desktop/compile-cache", only_contents=True) +
+        purge_path_or_contents("~/.config/ai.opencode.desktop/GPUCache", only_contents=True) +
+        purge_path_or_contents("~/.config/ai.opencode.desktop/GPUPersistentCache", only_contents=True) +
+        purge_path_or_contents("~/.config/ai.opencode.desktop/DawnGraphiteCache", only_contents=True) +
+        purge_path_or_contents("~/.config/ai.opencode.desktop/DawnWebGPUCache", only_contents=True) +
+        purge_path_or_contents("~/.config/ai.opencode.desktop/Crashpad", only_contents=True) +
+        purge_path_or_contents("~/.config/ai.opencode.desktop/logs", only_contents=True) +
+        purge_path_or_contents("~/.local/share/opencode/log", only_contents=True) +
+        purge_path_or_contents("~/.local/share/opencode/snapshot", only_contents=True) +
+        purge_path_or_contents("~/.cache/opencode-wallpaper", only_contents=True) +
+        purge_path_or_contents("~/.config/opencode/*.bak*", only_contents=False) +
+        purge_path_or_contents("~/.gentle-ai/cache/opencode-v2", only_contents=True)
+    )
+    freed_bytes += opencode_freed
+    if opencode_freed > 0:
+        results.append(f"Caché y logs de OpenCode: {format_size(opencode_freed)} (Base de datos y configuraciones protegidas)")
+
     print(f"\n⚡ MANTENIMIENTO PROFUNDO FINALIZADO")
     print(f"🗑️  Espacio total liberado en sistema: {format_size(freed_bytes)}")
     for r in results:

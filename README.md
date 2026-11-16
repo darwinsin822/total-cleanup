@@ -23,6 +23,7 @@
    - **Flutter / Dart:** Limpieza y vaciado de paquetes y repositorios temporales de `~/.pub-cache`.
    - **Rust / Cargo:** Saneamiento de crates descargados y descomprimidos en `~/.cargo/registry`.
    - **NPM & Gradle:** Limpieza de cachés globales (`~/.npm/_cacache`, `~/.gradle/caches`, daemons).
+   - **OpenCode (Desktop & CLI):** Saneamiento de cachés de GPU/Electron (`Cache`, `Code Cache`, `GPUCache`), crash dumps, logs y backups obsoletos, preservando `opencode.db` y configuración.
    - **Cachés de Usuario:** Purga de miniaturas (`~/.cache/thumbnails`), cachés web y temporales de instaladores.
 
 2. **📦 Purga de Paquetes Obsoletos:**
