@@ -46,20 +46,31 @@ Skill universal de optimización extrema de almacenamiento y purga de residuos p
 
 ---
 
+### 5. 📊 Analizador de Disco Estilo Baobab (Linux Mint)
+- Integra un motor de diagnóstico que replica la visualización y análisis del Analizador de Uso de Disco de Linux Mint (Baobab).
+- Muestra tablas jerárquicas con tamaño, porcentaje relativo de ocupación y clasificación automática de elementos limpiables (`target/`, cachés, `.pub-cache`, `node_modules`).
+
+---
+
 ## 🚀 Uso y Ejecución
 
 ```bash
-# 1. Limpieza y saneamiento profundo del sistema (WhatsApp, Flutter, Rust, Gradle, NPM, Cache)
+# 1. Diagnóstico y análisis de disco estilo Baobab
+clean-project --baobab
+# o
+clean-project --analyze
+
+# 2. Limpieza y saneamiento profundo del sistema (WhatsApp, Flutter, Rust, Gradle, NPM, Navegadores, Cache)
 clean-project --deep
 # o
 clean-project --system
 
-# 2. Limpieza completa (Sistema + Proyecto actual)
+# 3. Limpieza completa (Sistema + Proyecto actual)
 clean-project --all
 
-# 3. Limpiar el proyecto actual
+# 4. Limpiar el proyecto actual
 clean-project .
 
-# 4. Limpiar una ruta de proyecto específica
+# 5. Limpiar una ruta de proyecto específica
 clean-project /ruta/al/proyecto
 ```

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-clean_project.py - Limpiador Ultra Agresivo de Proyectos y Sistema (DarwinSin)
+clean_project.py - Limpiador Ultra Agresivo de Proyectos y Sistema con Motor de Diagnóstico Baobab (DarwinSin)
 Elimina sistemáticamente:
  1. Todas las versiones anteriores de APKs (en el proyecto y en ~/Descargas/).
  2. Scripts, parches y códigos fuente de versiones pasadas.
@@ -10,7 +10,10 @@ Elimina sistemáticamente:
     - Cachés de Flutter/Dart (~/.pub-cache).
     - Cachés de Rust (~/.cargo/registry/src y cache).
     - Cachés de Gradle, NPM, pip y miniaturas del sistema.
- Deja ÚNICAMENTE la versión actual más reciente y el árbol de código activo.
+    - Cachés de OpenCode (Desktop y CLI).
+    - Cachés de navegadores (Chrome y Brave: CRX, Shaders, Service Workers).
+ 5. Analizador de Disco Estilo Baobab:
+    - Diagnóstico de árbol jerárquico de almacenamiento, cálculo de porcentajes y detección automática de carpetas limpiables.
 """
 
 import os
@@ -18,23 +21,31 @@ import sys
 import glob
 import re
 import shutil
+import subprocess
 
-def get_dir_size(path):
-    total = 0
+def get_dir_size_and_count(path):
+    total_size = 0
+    total_items = 0
     if os.path.isfile(path) or os.path.islink(path):
         try:
-            return os.path.getsize(path)
+            return os.path.getsize(path), 1
         except OSError:
-            return 0
+            return 0, 0
     for root, dirs, files in os.walk(path):
         for f in files:
             fp = os.path.join(root, f)
             if not os.path.islink(fp) and os.path.exists(fp):
                 try:
-                    total += os.path.getsize(fp)
+                    total_size += os.path.getsize(fp)
+                    total_items += 1
                 except OSError:
                     pass
-    return total
+        total_items += len(dirs)
+    return total_size, total_items
+
+def get_dir_size(path):
+    sz, _ = get_dir_size_and_count(path)
+    return sz
 
 def format_size(bytes_size):
     for unit in ['B', 'KB', 'MB', 'GB']:
@@ -78,6 +89,84 @@ def purge_path_or_contents(target_path, only_contents=False):
             except OSError:
                 pass
     return freed
+
+def analyze_disk_baobab(target_dir=None):
+    """Escanea y despliega el árbol de almacenamiento al estilo del Analizador de Disco de Linux Mint (Baobab)."""
+    target = os.path.abspath(os.path.expanduser(target_dir)) if target_dir else os.path.expanduser("~")
+    print(f"📊 EJECUTANDO ANÁLISIS DE DISCO (Motor Baobab) EN: {target}\n")
+
+    # Lista de categorías prioritarias identificadas por Baobab
+    core_targets = [
+        "Música", ".local", "Rimarc", "Documentos", ".config", ".var",
+        "Android", "AndroidModLab", "AndroidUISkinLab", ".icons",
+        "AndroidMagic", ".gradle", ".nvm", ".gemini", ".rustup",
+        ".cache", ".npm", ".cargo", ".pub-cache", "Descargas", "Vídeos", "Imágenes"
+    ]
+
+    entries = []
+    total_scanned_bytes = 0
+
+    # Escanear cada ruta de forma rápida
+    for item in core_targets:
+        item_path = os.path.join(target, item)
+        if not os.path.exists(item_path):
+            continue
+        try:
+            out = subprocess.check_output(["du", "-sk", item_path], stderr=subprocess.DEVNULL).decode().strip()
+            sz_kb = int(out.split()[0])
+            sz = sz_kb * 1024
+        except Exception:
+            sz = get_dir_size(item_path)
+
+        if sz > 0:
+            total_scanned_bytes += sz
+            entries.append({
+                "name": item,
+                "path": item_path,
+                "size": sz,
+                "is_dir": os.path.isdir(item_path)
+            })
+
+    entries.sort(key=lambda x: x["size"], reverse=True)
+
+    header = f"{'Carpeta / Archivo':<22} | {'Tamaño':<10} | {'% Uso':<7} | {'Diagnóstico / Acción'}"
+    print(header)
+    print("-" * len(header))
+
+    reclaimable_potencial = 0
+
+    for e in entries:
+        pct = (e["size"] / total_scanned_bytes * 100) if total_scanned_bytes > 0 else 0
+        name = e["name"]
+        sz_str = format_size(e["size"])
+
+        # Diagnóstico inteligente de la carpeta
+        rec = "Conservar (Datos de usuario)"
+        if name in [".cache", ".npm", ".gradle"]:
+            rec = "🧹 Limpiable (Caché de desarrollo/sistema)"
+            reclaimable_potencial += e["size"] * 0.75
+        elif name in [".pub-cache", ".cargo"]:
+            rec = "🧹 Depurable (Registro de paquetes descargados)"
+            reclaimable_potencial += e["size"] * 0.60
+        elif name in ["Rimarc", "mintplayer", "Orpheon"]:
+            rec = "⚡ Proyecto activo (Limpiable con clean-project)"
+            reclaimable_potencial += e["size"] * 0.40
+        elif name in [".var", ".local"]:
+            rec = "⚙️ Runtimes y perfiles (Cachés de apps limpiables)"
+            reclaimable_potencial += e["size"] * 0.20
+        elif name in ["Documentos", "Música", "Imágenes", "Vídeos"]:
+            rec = "💎 Archivos personales (Inmutable)"
+        elif name.startswith("Android"):
+            rec = "📱 Entorno Android / Laboratorio"
+
+        if pct >= 0.5 or e["size"] >= (50 * 1024 * 1024):
+            print(f"{name:<22} | {sz_str:<10} | {pct:>5.1f}% | {rec}")
+
+    print("-" * len(header))
+    print(f"📦 Total analizado en directorio: {format_size(total_scanned_bytes)}")
+    if reclaimable_potencial > 0:
+        print(f"💡 Espacio estimado potencialmente recuperable: ~{format_size(reclaimable_potencial)}")
+    print("\nPara ejecutar la limpieza profunda automatizada ejecuta: clean-project --deep")
 
 def clean_system_deep():
     """Ejecuta el saneamiento y mantenimiento profundo del sistema."""
@@ -130,7 +219,22 @@ def clean_system_deep():
     if user_cache_freed > 0:
         results.append(f"Caché de usuario (~/.cache / Chrome / Miniaturas): {format_size(user_cache_freed)}")
 
-    # 7. OpenCode (Desktop / CLI Caches, Logs, Snapshots, Backups)
+    # 7. Cachés de Navegadores (Chrome & Brave: CRX, Shaders, Service Workers)
+    browser_cache_freed = (
+        purge_path_or_contents("~/.config/google-chrome/extensions_crx_cache", only_contents=True) +
+        purge_path_or_contents("~/.config/google-chrome/component_crx_cache", only_contents=True) +
+        purge_path_or_contents("~/.config/google-chrome/GrShaderCache", only_contents=True) +
+        purge_path_or_contents("~/.config/google-chrome/*/Service Worker/CacheStorage", only_contents=True) +
+        purge_path_or_contents("~/.config/BraveSoftware/Brave-Origin-Nightly/extensions_crx_cache", only_contents=True) +
+        purge_path_or_contents("~/.config/BraveSoftware/Brave-Origin-Nightly/component_crx_cache", only_contents=True) +
+        purge_path_or_contents("~/.config/BraveSoftware/Brave-Origin-Nightly/GrShaderCache", only_contents=True) +
+        purge_path_or_contents("~/.config/BraveSoftware/Brave-Origin-Nightly/*/Service Worker/CacheStorage", only_contents=True)
+    )
+    freed_bytes += browser_cache_freed
+    if browser_cache_freed > 0:
+        results.append(f"Cachés de navegadores (Chrome/Brave CRX & Service Workers): {format_size(browser_cache_freed)}")
+
+    # 8. OpenCode (Desktop / CLI Caches, Logs, Snapshots, Backups)
     opencode_freed = (
         purge_path_or_contents("~/.config/ai.opencode.desktop/Cache", only_contents=True) +
         purge_path_or_contents("~/.config/ai.opencode.desktop/Code Cache", only_contents=True) +
@@ -272,7 +376,10 @@ def clean_project(target_dir):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    if not args or args[0] in [".", ""]:
+    if any(arg in ["--baobab", "--analyze", "--scan", "-scan", "analyze", "baobab"] for arg in args):
+        target = next((a for a in args if not a.startswith("-") and a not in ["analyze", "baobab"]), None)
+        analyze_disk_baobab(target)
+    elif not args or args[0] in [".", ""]:
         clean_project(os.getcwd())
     elif any(arg in ["--system", "--deep", "system", "deep", "-s"] for arg in args):
         clean_system_deep()

@@ -40,6 +40,11 @@
 
 ---
 
+5. **📊 Analizador de Disco Estilo Baobab (Linux Mint):**
+   - Motor de inspección visual que genera tablas jerárquicas idénticas a Baobab, calculando porcentajes de ocupación por carpeta y recomendando acciones de limpieza en segundos.
+
+---
+
 ## 🚀 Instalación y Despliegue Rápido
 
 Para instalar la CLI globalmente (`clean-project`) y como skill en Google Antigravity 2.0:
@@ -55,16 +60,19 @@ cd total-cleanup
 ## 💻 Uso de la CLI
 
 ```bash
-# 1. Saneamiento profundo del sistema (WhatsApp, Flutter, Rust, Gradle, NPM, Cache)
+# 1. Diagnóstico y árbol de ocupación de disco estilo Baobab
+clean-project --baobab
+
+# 2. Saneamiento profundo del sistema (WhatsApp, Flutter, Rust, Gradle, NPM, Navegadores, Cache)
 clean-project --deep
 
-# 2. Limpieza completa (Sistema + Directorio actual)
+# 3. Limpieza completa (Sistema + Directorio actual)
 clean-project --all
 
-# 3. Limpiar el proyecto en el directorio actual
+# 4. Limpiar el proyecto en el directorio actual
 clean-project .
 
-# 4. Limpiar un proyecto específico
+# 5. Limpiar un proyecto específico
 clean-project /ruta/al/proyecto
 ```
 
