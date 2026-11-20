@@ -6,13 +6,29 @@
 <img src="./assets/total-cleanup.jpg" alt="Total Cleanup Engine Banner" width="380px" style="border-radius: 12px; margin: 16px 0; box-shadow: 0 8px 24px rgba(0,0,0,0.5);" />
 
 [![GitHub License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Compatible](https://img.shields.io/badge/Antigravity%202.0_Skill-Verified-blue.svg)](https://github.com/darwinsin822/total-cleanup)
+[![Environment](https://img.shields.io/badge/Environment-Universal_(Claude_Code_|_Codex_|_Antigravity_|_OpenCode)-blueviolet.svg)](#-compatibilidad-universal-multi-entorno)
 [![Purge Engine](https://img.shields.io/badge/Engine-Ultra_Aggressive_Purge-emerald.svg)](#-evidencia-de-ejecución-en-vivo)
 [![CI](https://img.shields.io/badge/CI-Passing-brightgreen.svg)](scripts/ci.sh)
 
 </div>
 
-**Total Cleanup** es el motor ultra agresivo de saneamiento de almacenamiento, purga de residuos de compilación, optimización de disco para proyectos de software y mantenimiento profundo de sistema en Linux Mint y Google Antigravity 2.0. Elimina sistemáticamente versiones anteriores obsoletas, árboles de descompilación temporal, cachés de WhatsApp (ICE y Flatpak), paquetes de Flutter/Dart, registros de Rust/Cargo y cachés de desarrollo, preservando de forma inmutable únicamente el artefacto final activo, los documentos personales y el código fuente limpio.
+**Total Cleanup** es el motor ultra agresivo de saneamiento de almacenamiento, purga de residuos de compilación, optimización de disco para proyectos de software y mantenimiento profundo de sistema para cualquier entorno asistido por Inteligencia Artificial (**Claude Code, OpenAI Codex, Google Antigravity 2.0, OpenCode CLI, Cursor, etc.**).
+
+Elimina sistemáticamente versiones anteriores obsoletas, árboles de descompilación temporal, cachés de WhatsApp (ICE y Flatpak), paquetes de Flutter/Dart, registros de Rust/Cargo y cachés de desarrollo, preservando de forma inmutable únicamente el artefacto final activo, los documentos personales y el código fuente limpio.
+
+---
+
+## 🌐 Compatibilidad Universal Multi-Entorno
+
+Total Cleanup mantiene limpio y ágil el entorno de trabajo en cualquier herramienta de desarrollo de IA:
+
+| Entorno / Plataforma | Integración y Despliegue |
+| :--- | :--- |
+| **🤖 Google Antigravity (AGY 2.0)** | Integración nativa como Skill en `~/.gemini/config/skills/total-cleanup/` y comando global `clean-project`. Activación por chat o subagentes. |
+| **🧠 Claude Code (Anthropic)** | Compatible como skill de CLI en `~/.claude/skills/total-cleanup` o ejecutando `clean-project --deep` directamente desde la terminal de Claude. |
+| **⚡ OpenCode CLI** | Compatible con ejecución en terminal con OpenCode CLI (`opencode`) para depurar cachés y archivos intermedios de compilación. |
+| **⚙️ OpenAI Codex / ChatGPT** | Utilizable en sandboxes y sesiones con acceso a bash para purgar temporales y optimizar el almacenamiento. |
+| **💻 Cursor / VS Code / Windsurf** | Configurable en `.cursorrules` o terminal integrado para mantener el repositorio limpio antes de commits o sincronizaciones. |
 
 ---
 

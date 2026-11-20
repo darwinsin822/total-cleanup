@@ -2,6 +2,7 @@
 name: total-cleanup
 description: >-
   Ultra-aggressive cleanup and storage optimizer for any project and system.
+  Skill universal compatible con cualquier entorno: Claude Code, OpenAI Codex, Google Antigravity, OpenCode, Cursor, etc.
   Activate whenever the user says "optimizar", "limpiar", "limpieza", or requests
   to clean up workspace files or perform deep system maintenance. PURGES all previous
   APK versions, obsolete source code, temporary extraction folders, intermediate builds,
@@ -12,6 +13,20 @@ description: >-
 # 🧹 Total Cleanup — Limpiador Ultra Agresivo de Proyectos y Sistema
 
 Skill universal de optimización extrema de almacenamiento y purga de residuos para proyectos de software y mantenimiento profundo de sistema en Linux Mint / Google Antigravity 2.0. Se activa automáticamente con la palabra **"optimizar"**, **"limpieza"**, **"limpieza profunda"** o ante cualquier solicitud de recuperación de espacio en disco.
+
+---
+
+## 🌐 COMPATIBILIDAD UNIVERSAL MULTI-ENTORNO
+
+Total Cleanup opera de forma agnóstica de plataforma, permitiendo sanear entornos de desarrollo y liberar espacio en cualquier arnés de IA:
+
+| Entorno / Herramienta | Modo de Integración y Operación |
+| :--- | :--- |
+| **🤖 Google Antigravity (AGY 2.0)** | Integración nativa como Skill en `.gemini/config/skills/total-cleanup/` y CLI `clean-project`. Activación vía chat (`optimizar`, `limpieza`) o subagentes. |
+| **🧠 Claude Code (Anthropic)** | Desplegable en `~/.claude/skills/total-cleanup` o ejecutable desde su bash tool mediante el comando global `clean-project --deep`. |
+| **⚡ OpenCode CLI** | Compatible con ejecución en terminal con OpenCode CLI (`opencode`), ejecutando rutinas de purga de cachés de compilación y residuos de desarrollo. |
+| **⚙️ OpenAI Codex / ChatGPT** | Utilizable en sandboxes y entornos interactivos para sanear el workspace tras ejecuciones de tests y compilaciones intermedias. |
+| **💻 Cursor / VS Code / Windsurf** | Utilizable desde la terminal integrada o tareas automatizadas de mantenimiento para liberar espacio consumido por Gradle, Rust o NPM. |
 
 ---
 
